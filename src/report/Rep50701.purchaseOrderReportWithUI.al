@@ -8,43 +8,44 @@ report 50701 purchaseOrderReportWithUI
 
     dataset
     {
-        dataitem(Integer; Integer)
+        dataitem("Purchase Header"; "Purchase Header")
         {
-            column(Number; Number) { }
-            dataitem("Purchase Header"; "Purchase Header")
+            dataitem("Purchase Line"; "Purchase Line")
             {
-                column(Vendor_No_; "Buy-from Vendor No.") { }
-                column(Vendor_Name; "Buy-from Vendor Name") { }
-                column(Contact_No_; "Buy-from Contact No.") { }
-
-                dataitem("Purchase Line"; "Purchase Line")
+                DataItemLink = "Document No." = field("No."), "Document Type" = field("Document Type");
+                dataitem(Integer; Integer)
                 {
-                    DataItemLink = "Document No." = field("No."), "Document Type" = field("Document Type");
-                    column(Item_No_; "No.") { }
-                    column(Quantity; Quantity) { }
-                    column(Unit_Cost; "Unit Cost") { }
+                    column(Number; Number) { }
+                    column(Vendor_No_; "Purchase Header"."Buy-from Vendor No.") { }
+                    column(Vendor_Name; "Purchase Header"."Buy-from Vendor Name") { }
+                    column(Contact_No_; "Purchase Header"."Buy-from Contact No.") { }
+                    column(Item_No_; "Purchase Line"."No.") { }
+                    column(Quantity; "Purchase Line".Quantity) { }
+                    column(Unit_Cost; "Purchase Line"."Unit Cost") { }
+
+                    trigger OnPreDataItem()
+                    var
+                        myInt: Integer;
+                    begin
+                        if totalNumber <> 0 then begin
+                            SetFilter(Number, '%1..%2', 1, totalNumber);
+                        end
+                        else
+                            Error('Give Total Number of Reports to be printed');
+                    end;
                 }
-                trigger OnPreDataItem()
-                var
-                    myInt: Integer;
-                begin
-                    if orderNo <> '' then begin
-                        "Purchase Header".SetRange("No.", orderNo);
-                    end
-                    else
-                        Error('Please Give Order Number');
-                end;
             }
             trigger OnPreDataItem()
             var
                 myInt: Integer;
             begin
-                if totalNumber <> 0 then begin
-                    SetFilter(Number, '%1..%2', 1, totalNumber);
+                if orderNo <> '' then begin
+                    "Purchase Header".SetRange("No.", orderNo);
                 end
                 else
-                    Error('Give Total Number of Reports to be printed');
+                    Error('Please Give Order Number');
             end;
+
         }
     }
 
